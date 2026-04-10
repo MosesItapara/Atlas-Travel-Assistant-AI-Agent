@@ -1,0 +1,21 @@
+# Virtual environment — never push this
+venv/
+
+# Environment variables — never push API keys!
+.env
+.env.local
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# Vector store (rebuilds automatically on server)
+atlas_knowledge/
+
+# VS Code settings
+.vscode/
+
+# Windows files
+Thumbs.db
+desktop.ini

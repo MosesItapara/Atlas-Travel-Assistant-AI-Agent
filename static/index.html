@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <link rel="icon" href="data:,">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Atlas ✈️ Travel Assistant</title>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: #0f172a;
+      color: #e2e8f0;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 780px;
+      height: 92vh;
+      display: flex;
+      flex-direction: column;
+      background: #1e293b;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 30px 60px rgba(0,0,0,0.5);
+    }
+
+    /* ── Header ── */
+    .header {
+      background: linear-gradient(135deg, #0ea5e9 0%, #6366f1 100%);
+      padding: 18px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+
+    .header-left h1  { font-size: 1.25rem; font-weight: 700; }
+    .header-left p   { font-size: 0.78rem; opacity: 0.85; margin-top: 2px; }
+
+    .header-right {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .status-dot {
+      width: 9px; height: 9px;
+      background: #4ade80;
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0.4; }
+    }
+
+    .new-chat-btn {
+      background: rgba(255,255,255,0.2);
+      border: 1px solid rgba(255,255,255,0.3);
+      color: white;
+      padding: 7px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.8rem;
+      transition: background 0.2s;
+    }
+
+    .new-chat-btn:hover { background: rgba(255,255,255,0.35); }
+
+    /* ── Messages ── */
+    .messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 24px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      scroll-behavior: smooth;
+    }
+
+    .messages::-webkit-scrollbar { width: 5px; }
+    .messages::-webkit-scrollbar-track { background: transparent; }
+    .messages::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
+
+    .message {
+      max-width: 78%;
+      padding: 12px 16px;
+      border-radius: 14px;
+      line-height: 1.65;
+      font-size: 0.93rem;
+      word-wrap: break-word;
+    }
+
+    .user {
+      background: linear-gradient(135deg, #0ea5e9, #6366f1);
+      align-self: flex-end;
+      border-bottom-right-radius: 4px;
+    }
+
+    .atlas {
+      background: #2d3f55;
+      align-self: flex-start;
+      border-bottom-left-radius: 4px;
+    }
+
+    .atlas-label {
+      font-size: 0.72rem;
+      color: #0ea5e9;
+      font-weight: 600;
+      margin-bottom: 5px;
+      letter-spacing: 0.3px;
+    }
+
+    /* ── Typing indicator ── */
+    .typing-indicator {
+      background: #2d3f55;
+      align-self: flex-start;
+      border-radius: 14px;
+      border-bottom-left-radius: 4px;
+      padding: 14px 18px;
+      display: flex;
+      gap: 5px;
+      align-items: center;
+    }
+
+    .dot {
+      width: 7px; height: 7px;
+      background: #64748b;
+      border-radius: 50%;
+      animation: bounce 1.3s infinite;
+    }
+    .dot:nth-child(2) { animation-delay: 0.15s; }
+    .dot:nth-child(3) { animation-delay: 0.3s; }
+
+    @keyframes bounce {
+      0%, 80%, 100% { transform: translateY(0); }
+      40%           { transform: translateY(-7px); }
+    }
+
+    /* ── Suggestions ── */
+    .suggestions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      padding: 0 20px 12px;
+    }
+
+    .suggestion-btn {
+      background: #1e3a5f;
+      border: 1px solid #0ea5e9;
+      color: #7dd3fc;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 0.78rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .suggestion-btn:hover {
+      background: #0ea5e9;
+      color: white;
+    }
+
+    /* ── Input area ── */
+    .input-area {
+      padding: 14px 16px;
+      background: #0f172a;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-shrink: 0;
+    }
+
+    #input {
+      flex: 1;
+      padding: 12px 18px;
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 12px;
+      color: #e2e8f0;
+      font-size: 0.93rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    #input:focus  { border-color: #0ea5e9; }
+    #input::placeholder { color: #64748b; }
+
+    #send-btn {
+      background: linear-gradient(135deg, #0ea5e9, #6366f1);
+      border: none;
+      width: 46px; height: 46px;
+      border-radius: 12px;
+      color: white;
+      font-size: 1.15rem;
+      cursor: pointer;
+      transition: opacity 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    #send-btn:hover    { opacity: 0.85; }
+    #send-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  </style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="header-left">
+      <h1>✈️ Atlas</h1>
+      <p>AI Travel Assistant — powered by Groq + LangChain</p>
+    </div>
+    <div class="header-right">
+      <div class="status-dot" title="Online"></div>
+      <button class="new-chat-btn" onclick="newChat()">+ New Chat</button>
+    </div>
+  </div>
+
+  <!-- Messages -->
+  <div class="messages" id="messages">
+    <div class="message atlas">
+      <div class="atlas-label">ATLAS</div>
+      Hey there! I'm Atlas 🌍 Your personal AI travel guide. Ask me about destinations, weather, budgets, visas, packing tips, or anything travel-related!
+    </div>
+  </div>
+
+  <!-- Quick suggestions -->
+  <div class="suggestions" id="suggestions">
+    <button class="suggestion-btn" onclick="suggest('Best time to visit Nairobi?')">🦁 Safari in Nairobi</button>
+    <button class="suggestion-btn" onclick="suggest('Weather in Tokyo right now')">🌸 Tokyo weather</button>
+    <button class="suggestion-btn" onclick="suggest('Convert 500 USD to KES')">💱 USD to KES</button>
+    <button class="suggestion-btn" onclick="suggest('What should I pack for Paris?')">🎒 Packing tips</button>
+    <button class="suggestion-btn" onclick="suggest('Visa requirements for Dubai')">🛂 Visa help</button>
+  </div>
+
+  <!-- Input -->
+  <div class="input-area">
+    <input
+      type="text"
+      id="input"
+      placeholder="Ask me anything about travel..."
+      onkeydown="if(event.key === 'Enter' && !event.shiftKey) sendMessage()"
+      autocomplete="off"
+    />
+    <button id="send-btn" onclick="sendMessage()" title="Send">➤</button>
+  </div>
+
+</div>
+
+<script>
+  // ── Session management ──
+  // Stored in localStorage so refreshing keeps your conversation
+  let sessionId = localStorage.getItem("atlas_session_id") || null;
+
+  // ── Send message ──
+  async function sendMessage() {
+    const input   = document.getElementById("input");
+    const message = input.value.trim();
+    if (!message) return;
+
+    // Hide suggestions after first message
+    document.getElementById("suggestions").style.display = "none";
+
+    appendMessage(message, "user");
+    input.value = "";
+    setLoading(true);
+
+    const typing = showTyping();
+
+    try {
+      const res = await fetch("/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: message, session_id: sessionId })
+      });
+
+      if (!res.ok) throw new Error(`Server error: ${res.status}`);
+
+      const data = await res.json();
+
+      // Save session ID so next message continues same conversation
+      sessionId = data.session_id;
+      localStorage.setItem("atlas_session_id", sessionId);
+
+      removeTyping(typing);
+      appendMessage(data.reply, "atlas");
+
+    } catch (err) {
+      removeTyping(typing);
+      appendMessage(
+        "Sorry, I couldn't connect to the server. Please try again in a moment. 🔄",
+        "atlas"
+      );
+      console.error("Chat error:", err);
+    }
+
+    setLoading(false);
+    input.focus();
+  }
+
+  // ── Suggestion buttons ──
+  function suggest(text) {
+    document.getElementById("input").value = text;
+    sendMessage();
+  }
+
+  // ── Append a message bubble ──
+  function appendMessage(text, sender) {
+    const messages = document.getElementById("messages");
+    const div = document.createElement("div");
+    div.className = `message ${sender}`;
+
+    if (sender === "atlas") {
+      div.innerHTML = `<div class="atlas-label">ATLAS</div>${escapeHtml(text)}`;
+    } else {
+      div.textContent = text;
+    }
+
+    messages.appendChild(div);
+    messages.scrollTop = messages.scrollHeight;
+  }
+
+  // ── Typing indicator ──
+  function showTyping() {
+    const messages = document.getElementById("messages");
+    const div = document.createElement("div");
+    div.className = "typing-indicator";
+    div.id = "typing";
+    div.innerHTML = `
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>`;
+    messages.appendChild(div);
+    messages.scrollTop = messages.scrollHeight;
+    return div;
+  }
+
+  function removeTyping(el) {
+    if (el && el.parentNode) el.remove();
+  }
+
+  // ── Loading state ──
+  function setLoading(loading) {
+    const btn   = document.getElementById("send-btn");
+    const input = document.getElementById("input");
+    btn.disabled   = loading;
+    input.disabled = loading;
+  }
+
+  // ── New conversation ──
+  async function newChat() {
+    if (sessionId) {
+      try {
+        await fetch(`/session/${sessionId}`, { method: "DELETE" });
+      } catch (e) { /* ignore */ }
+    }
+
+    sessionId = null;
+    localStorage.removeItem("atlas_session_id");
+
+    document.getElementById("messages").innerHTML = `
+      <div class="message atlas">
+        <div class="atlas-label">ATLAS</div>
+        Hey there! I'm Atlas 🌍 Your personal AI travel guide. Ask me about destinations, weather, budgets, visas, packing tips, or anything travel-related!
+      </div>`;
+
+    document.getElementById("suggestions").style.display = "flex";
+    document.getElementById("input").focus();
+  }
+
+  // ── Prevent XSS — escape HTML in messages ──
+  function escapeHtml(text) {
+    return text
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/\n/g, "<br>");
+  }
+</script>
+
+</body>
+</html>
